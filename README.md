@@ -24,3 +24,8 @@ Now, to use `idax`, simply do:
 ## xkernwin.hpp
 
 - Action manager: simplifies action creation and management
+
+
+## xhexrays.hpp
+
+- Various helpers for Hexrays. `ida-strikeout` makes use of this header a lot

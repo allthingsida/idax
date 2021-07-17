@@ -1,7 +1,7 @@
 /*
 IDASDK extension library (c) Elias Bachaalany.
 
-Kernwin utilities
+Hexrays utilities
 */
 #pragma once
 
