@@ -69,6 +69,26 @@ class action_manager_t
     const char *current_popup_path = nullptr;
 
 public:
+    update_state_ah_t default_enable_for_vd_expr = FO_ACTION_UPDATE([],
+        auto vu = get_widget_vdui(widget);
+        return (vu == nullptr) ? AST_DISABLE_FOR_WIDGET
+                                : vu->item.citype == VDI_EXPR ? AST_ENABLE : AST_DISABLE;
+    );
+
+    update_state_ah_t default_enable_for_vd = FO_ACTION_UPDATE([],
+        auto vu = get_widget_vdui(widget);
+        return vu == nullptr ? AST_DISABLE_FOR_WIDGET : AST_ENABLE;
+    );
+
+    update_state_ah_t default_enable_for_disasm = FO_ACTION_UPDATE([],
+        return get_widget_type(widget) == BWN_DISASM ? AST_ENABLE_FOR_WIDGET : AST_DISABLE_FOR_WIDGET;
+    );
+
+    update_state_ah_t default_enable_for_vd_disasm = FO_ACTION_UPDATE([],
+        auto t = get_widget_type(widget);
+        return (t == BWN_DISASM || t == BWN_PSEUDOCODE) ? AST_ENABLE_FOR_WIDGET : AST_DISABLE_FOR_WIDGET;
+    );
+
     void set_popup_path(const char* path=nullptr)
     {
         if (path == nullptr)
