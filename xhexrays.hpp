@@ -9,6 +9,7 @@ Hexrays utilities
 
 #include <algorithm>
 #include <map>
+#include <memory>
 
 //----------------------------------------------------------------------------------
 class hexrays_ctreeparent_visitor_t : public ctree_parentee_t
@@ -53,6 +54,8 @@ public:
     }
 };
 
+using hexrays_ctreeparent_visitor_ptr_t = std::unique_ptr<hexrays_ctreeparent_visitor_t>;
+
 //----------------------------------------------------------------------------------
 ea_t get_selection_range(
     TWidget* widget, 
@@ -87,7 +90,7 @@ ea_t get_selection_range(
 inline const cinsn_t* hexrays_get_stmt_insn(
     cfunc_t* cfunc, 
     const citem_t* ui_item, 
-    hexrays_ctreeparent_visitor_t **ohelper = nullptr)
+    hexrays_ctreeparent_visitor_ptr_t *ohelper = nullptr)
 {
     auto func_body = &cfunc->body;
 
@@ -103,10 +106,12 @@ inline const cinsn_t* hexrays_get_stmt_insn(
         {
             helper = new hexrays_ctreeparent_visitor_t();
             helper->apply_to(func_body, nullptr);
+
+            ohelper->reset(helper);
         }
         else
         {
-            helper = *ohelper;
+            helper = ohelper->get();
         }
     }
 
@@ -127,12 +132,6 @@ inline const cinsn_t* hexrays_get_stmt_insn(
     // ...then the actual instruction item
     if (stmt_item->is_expr())
         stmt_item = get_parent(stmt_item);
-
-    if (ohelper != nullptr)
-    {
-        if (*ohelper == nullptr)
-            *ohelper = helper;
-    }
 
     return (const cinsn_t*)stmt_item;
 }
