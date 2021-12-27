@@ -5,11 +5,25 @@ Hexrays utilities
 */
 #pragma once
 
-#include <hexrays.hpp>
-
 #include <algorithm>
 #include <map>
 #include <memory>
+
+#include <hexrays.hpp>
+
+#include "xkernwin.hpp"
+
+//----------------------------------------------------------------------------------
+update_state_ah_t hexrays_default_enable_for_vd_expr = FO_ACTION_UPDATE([],
+    auto vu = get_widget_vdui(widget);
+    return (vu == nullptr) ? AST_DISABLE_FOR_WIDGET
+                            : vu->item.citype == VDI_EXPR ? AST_ENABLE : AST_DISABLE;
+);
+
+update_state_ah_t hexrays_default_enable_for_vd = FO_ACTION_UPDATE([],
+    auto vu = get_widget_vdui(widget);
+    return vu == nullptr ? AST_DISABLE_FOR_WIDGET : AST_ENABLE;
+);
 
 //----------------------------------------------------------------------------------
 class hexrays_ctreeparent_visitor_t : public ctree_parentee_t

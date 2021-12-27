@@ -11,9 +11,24 @@ Kernwin utilities
 
 #include <kernwin.hpp>
 
+#include "xpro.hpp"
+
 //----------------------------------------------------------------------------------
-using update_state_ah_t = std::function<action_state_t(action_update_ctx_t*, bool)>;
-using activate_ah_t     = std::function<int(action_activation_ctx_t*)>;
+// Some IDA GUI icon IDs
+namespace IDAICONS { enum
+{
+    FLASH                           = 171,          // Flash icon
+    FLASH_EDIT                      = 173,          // A flash icon with the pencil on it
+    BPT_DISABLED                    = 62,           // A gray filled circle crossed (disabled breakpoint)
+    EYE_GLASSES_EDIT                = 43,           // Eye glasses with a small pencil overlay
+    RED_DOT                         = 59,           // Filled red circle (used to designate an active breakpoint)
+    GRAPH_WITH_FUNC                 = 78,           // Nodes in a graph icon with a smaller function icon overlapped on top of the graph
+    GRAY_X_CIRCLE                   = 175,          // A filled gray circle with an X in it
+}; }
+
+//----------------------------------------------------------------------------------
+using update_state_ah_t = std::function<action_state_t(action_update_ctx_t *ctx, bool is_widget)>;
+using activate_ah_t     = std::function<int(action_activation_ctx_t *ctx)>;
 
 // Utility class to allow using function objects instead of inheriting from action_handler_t each time
 struct fo_action_handler_ah_t: public action_handler_t
@@ -23,9 +38,14 @@ struct fo_action_handler_ah_t: public action_handler_t
     update_state_ah_t f_update;
     activate_ah_t f_activate;
     
-    fo_action_handler_ah_t(const char *name, update_state_ah_t f_update, activate_ah_t f_activate,
-        const char* popup_path = nullptr) :
-        name(name), f_update(f_update), f_activate(f_activate), popup_path(popup_path) { }
+    fo_action_handler_ah_t(
+        const char *name, 
+        update_state_ah_t f_update, 
+        activate_ah_t f_activate,
+        const char* popup_path = nullptr)
+            : name(name), f_update(f_update), f_activate(f_activate), popup_path(popup_path)
+    { 
+    }
 
     action_state_t idaapi update(action_update_ctx_t* ctx) override
     {
@@ -69,17 +89,6 @@ class action_manager_t
     const char *current_popup_path = nullptr;
 
 public:
-    update_state_ah_t default_enable_for_vd_expr = FO_ACTION_UPDATE([],
-        auto vu = get_widget_vdui(widget);
-        return (vu == nullptr) ? AST_DISABLE_FOR_WIDGET
-                                : vu->item.citype == VDI_EXPR ? AST_ENABLE : AST_DISABLE;
-    );
-
-    update_state_ah_t default_enable_for_vd = FO_ACTION_UPDATE([],
-        auto vu = get_widget_vdui(widget);
-        return vu == nullptr ? AST_DISABLE_FOR_WIDGET : AST_ENABLE;
-    );
-
     update_state_ah_t default_enable_for_disasm = FO_ACTION_UPDATE([],
         return get_widget_type(widget) == BWN_DISASM ? AST_ENABLE_FOR_WIDGET : AST_DISABLE_FOR_WIDGET;
     );
@@ -114,6 +123,24 @@ public:
 
     }
 
+    bool attach_to_popup(
+        fo_action_handler_ah_t *act,
+        TWidget* widget, 
+        TPopupMenu* popup_handle,
+        const char* popuppath = nullptr,
+        int flags = 0)
+    {
+        if (popuppath == nullptr)
+            popuppath = act->popup_path;
+
+        return attach_action_to_popup(
+            widget,
+            popup_handle,
+            act->name.c_str(),
+            popuppath,
+            flags);
+    }
+
     void maybe_attach_to_popup(
         bool via_hxe,
         TWidget* widget,
@@ -137,7 +164,8 @@ public:
     }
 
     action_manager_t(const void* owner = nullptr) : plg_owner(owner) { }
-    action_handler_t *add_action(
+
+    fo_action_handler_ah_t *add_action(
         int amflags,
 #define AMAHF_NONE          0x00
 #define AMAHF_HXE_POPUP     0x01
@@ -169,7 +197,12 @@ public:
             if (amflags & AMAHF_IDA_POPUP)
                 want_ida_popup.push_back(act);
         }
+        else
+        {
+            action_handlers.pop_back();
+        }
 
         return act;
     }
 };
+

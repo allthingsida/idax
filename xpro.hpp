@@ -10,7 +10,7 @@ Base utilities
 #include <memory>
 
 //----------------------------------------------------------------------------------
-// An object container. It owns the objects and when it dies, everything dies with it
+// An object container. It owns the objects and when it dies, everything dies with it.
 template <typename T>
 class objcontainer_t: public std::vector<std::unique_ptr<T>>
 {
@@ -30,6 +30,7 @@ public:
             idx = size() - size_t(-index);
         else
             idx = size_t(index);
+
         if (idx >= size())
             return nullptr;
         else
