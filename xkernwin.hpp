@@ -204,5 +204,12 @@ public:
 
         return act;
     }
+
+    void remove_actions()
+    {
+        for (auto &ah: action_handlers)
+            unregister_action(ah->name.c_str());
+        action_handlers.clear();
+    }
 };
 
