@@ -212,4 +212,3 @@ public:
         action_handlers.clear();
     }
 };
-
