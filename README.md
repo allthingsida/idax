@@ -17,6 +17,14 @@ Now, to use `idax`, simply do:
 #include <idax/xkernwin.hpp>
 ```
 
+Note that `idax` requires the C++17 standard. If you are using CMake/[`ida-cmake`](https://github.com/0xeb/ida-cmake), you can set the C++ standard like this:
+
+```cmake
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+```
+
+
 ## Symbolic links
 
 In the case of multiple IDA SDKs on the system, it is best to clone this project into its own folder then create symbolic links.

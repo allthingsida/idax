@@ -14,13 +14,13 @@ Hexrays utilities
 #include "xkernwin.hpp"
 
 //----------------------------------------------------------------------------------
-update_state_ah_t hexrays_default_enable_for_vd_expr = FO_ACTION_UPDATE([],
+inline update_state_ah_t hexrays_default_enable_for_vd_expr = FO_ACTION_UPDATE([],
     auto vu = get_widget_vdui(widget);
     return (vu == nullptr) ? AST_DISABLE_FOR_WIDGET
                             : vu->item.citype == VDI_EXPR ? AST_ENABLE : AST_DISABLE;
 );
 
-update_state_ah_t hexrays_default_enable_for_vd = FO_ACTION_UPDATE([],
+inline update_state_ah_t hexrays_default_enable_for_vd = FO_ACTION_UPDATE([],
     auto vu = get_widget_vdui(widget);
     return vu == nullptr ? AST_DISABLE_FOR_WIDGET : AST_ENABLE;
 );
@@ -71,7 +71,7 @@ public:
 using hexrays_ctreeparent_visitor_ptr_t = std::unique_ptr<hexrays_ctreeparent_visitor_t>;
 
 //----------------------------------------------------------------------------------
-ea_t get_selection_range(
+inline ea_t get_selection_range(
     TWidget* widget, 
     ea_t* end_ea = nullptr, 
     int widget_type = BWN_DISASM)
@@ -181,7 +181,7 @@ inline bool hexrays_get_stmt_block_pos(
 }
 
 //----------------------------------------------------------------------------------
-bool hexrays_are_acenstor_of(
+inline bool hexrays_are_acenstor_of(
     hexrays_ctreeparent_visitor_t* h, 
     cinsnptrvec_t& inst, 
     citem_t* item)
@@ -195,7 +195,7 @@ bool hexrays_are_acenstor_of(
 };
 
 //----------------------------------------------------------------------------------
-void hexrays_keep_lca_cinsns(
+inline void hexrays_keep_lca_cinsns(
     cfunc_t* cfunc,
     hexrays_ctreeparent_visitor_t* helper,
     cinsnptrvec_t& bulk_list)
@@ -210,4 +210,28 @@ void hexrays_keep_lca_cinsns(
             new_list.push_back(item);
     }
     new_list.swap(bulk_list);
+}
+
+//----------------------------------------------------------------------------------
+inline void hexrays_find_expr(
+    cfuncptr_t func,
+    std::function<int(cexpr_t*)> cb,
+    int flags = CV_FAST,
+    citem_t* parent = nullptr)
+{
+    struct visitor_wrapper : public ctree_visitor_t
+    {
+        std::function<int(cexpr_t*)> cb;
+
+        visitor_wrapper(int flags, std::function<int(cexpr_t*)> cb)
+            : ctree_visitor_t(flags), cb(cb) {}
+
+        virtual int idaapi visit_expr(cexpr_t* expr)
+        {
+            return cb(expr);
+        }
+    };
+
+    visitor_wrapper v(flags, cb);
+    v.apply_to(&func->body, parent);
 }
