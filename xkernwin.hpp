@@ -1,7 +1,7 @@
 /*
 IDASDK extension library (c) Elias Bachaalany.
 
-Kernwin utilities
+- Kernwin utilities
 */
 #pragma once
 
@@ -80,6 +80,11 @@ using fo_action_handler_vec_t = std::vector<fo_action_handler_ah_t*>;
 //--------------------------------------------------------------------------
 class action_manager_t
 {
+    // Action manager action handler flags:
+    #define AMAHF_NONE          0x00
+    #define AMAHF_HXE_POPUP     0x01
+    #define AMAHF_IDA_POPUP     0x04
+
     objcontainer_t<fo_action_handler_ah_t> action_handlers;
     objcontainer_t<qstring> popup_paths;
 
@@ -166,10 +171,7 @@ public:
     action_manager_t(const void* owner = nullptr) : plg_owner(owner) { }
 
     fo_action_handler_ah_t *add_action(
-        int amflags,
-#define AMAHF_NONE          0x00
-#define AMAHF_HXE_POPUP     0x01
-#define AMAHF_IDA_POPUP     0x04
+        int amflags, // one of AMAHF_* flags
         const char* name,
         const char* label,
         const char* shortcut,
