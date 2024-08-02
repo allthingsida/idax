@@ -17,13 +17,23 @@ IDASDK extension library (c) Elias Bachaalany.
 // Some IDA GUI icon IDs
 namespace IDAICONS { enum
 {
-    FLASH                           = 171,          // Flash icon
-    FLASH_EDIT                      = 173,          // A flash icon with the pencil on it
-    BPT_DISABLED                    = 62,           // A gray filled circle crossed (disabled breakpoint)
     EYE_GLASSES_EDIT                = 43,           // Eye glasses with a small pencil overlay
+    GREEN_DOT                       = 356,          // Filled green circle (used to designate a disabled breakpoint)
+    GREEN_PLAY_BUTTON               = 376,          // Green play button (start process)
     RED_DOT                         = 59,           // Filled red circle (used to designate an active breakpoint)
-    GRAPH_WITH_FUNC                 = 78,           // Nodes in a graph icon with a smaller function icon overlapped on top of the graph
+    DISABLED                        = 62,           // The circle with the line through it (used to designate a disabled item)
+    GRAPH_WITH_FUNC                 = 77,           // Nodes in a graph icon with a smaller function icon overlapped on top of the graph
+    YELLOW_COG_WHEEL                = 156,          // Yellow cog wheel
+    FLASH                           = 171,          // Flash icon
+    KEYBOARD_GRAY                   = 173,          // A grayish keyboard
+    EYE_GREEN                       = 50,           // Eye icon with a green color
+    PRINTER                         = 158,          // Printer icon
     GRAY_X_CIRCLE                   = 175,          // A filled gray circle with an X in it
+    NOTEPAD_1                       = 73,           // A notepad icon
+    NOTEPAD_2                       = 339,          // A notepad icon
+    LIGHT_BULB                      = 174,          // A light bulb icon
+    TABLE_BLUE_CELLS_3X2            = 100,          // A table with blue cells (3x2)
+    TABLE_WHITE_CELLS_4X2           = 418,          // A table with white cells (4x2)
 }; }
 
 //----------------------------------------------------------------------------------
