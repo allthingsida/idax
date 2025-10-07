@@ -1,11 +1,8 @@
-# idax - Modern C++ Extensions for IDA SDK
+# idacpp - Modern C++ Extensions for IDA SDK
 
 A modern, namespace-organized C++ library providing high-level utilities and abstractions for IDA Pro plugin development.
 
-**Version 2.0.0** - Modern C++20 rewrite
-
-
-**idacpp** is the successor to [idax](https://github.com/0xeb/idax), redesigned with modern C++20, proper namespacing, and ida-cmake integration.
+Modern C++20 library with proper namespacing and ida-cmake integration.
 
 ## Features
 
@@ -52,7 +49,7 @@ Callback management utilities
 
 ```bash
 cd your_plugin_project
-git submodule add https://github.com/0xeb/idax.git external/idacpp
+git submodule add https://github.com/allthingsida/idax.git
 ```
 
 ### 2. Add to your CMakeLists.txt
@@ -158,14 +155,6 @@ auto* last = objects[-1];
 // Automatic cleanup when container goes out of scope
 ```
 
-## Migration from idax
-
-| idax | idacpp |
-|------|--------|
-| `#include <idax/xkernwin.hpp>` | `#include <idacpp/kernwin/kernwin.hpp>` |
-| `action_manager_t mgr;` | `idacpp::kernwin::action_manager_t mgr;` |
-| `IDAICONS::GREEN_DOT` | `idacpp::kernwin::IDAICONS::GREEN_DOT` |
-| Global namespace | `idacpp::module` namespaces |
 
 ## Building Examples
 

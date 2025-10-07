@@ -27,8 +27,8 @@ Master convenience header - includes all idacpp modules
  * @section intro_sec Introduction
  *
  * idacpp is a modern C++20 library providing high-level utilities and abstractions
- * for IDA Pro plugin development. It is the successor to idax, redesigned with
- * proper namespacing, modern C++ features, and ida-cmake integration.
+ * for IDA Pro plugin development with proper namespacing, modern C++ features,
+ * and ida-cmake integration.
  *
  * @section modules_sec Modules
  *
