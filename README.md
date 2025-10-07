@@ -1,3 +1,11 @@
+# idax - IDA Pro C++ Extensions
+
+> **Note:** This branch preserves the old structure. For the latest refactored version, see the [main branch](../tree/main).
+>
+> Migration guide: [MIGRATION.md](MIGRATION.md)
+
+---
+
 # What is `idax`?
 
 `idax` is a set of C++ extensions for the `IDASDK`. These extensions are a work in progress and are not meant to be used in production code yet. As of now, only my personal IDA [plugins](https://github.com/0xeb/ida-strikeout) use `idax`.
