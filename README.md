@@ -1,51 +1,206 @@
-# What is `idax`?
+# idax - Modern C++ Extensions for IDA SDK
 
-`idax` is a set of C++ extensions for the `IDASDK`. These extensions are a work in progress and are not meant to be used in production code yet. As of now, only my personal IDA [plugins](https://github.com/0xeb/ida-strikeout) use `idax`.
+A modern, namespace-organized C++ library providing high-level utilities and abstractions for IDA Pro plugin development.
 
-# Installation
+**Version 2.0.0** - Modern C++20 rewrite
 
-To use this library in existing IDA plugin projects, just copy (or clone) the `idax` folder into `<idasdk>/include/`.
 
-Normally, you would import `IDASDK` headers like this:
-```c++
-#include <kernwin.hpp>
+**idacpp** is the successor to [idax](https://github.com/0xeb/idax), redesigned with modern C++20, proper namespacing, and ida-cmake integration.
+
+## Features
+
+- **Modern C++20** - Leverages modern C++ features and best practices
+- **Namespace Organized** - Clean `idacpp::module` namespace structure
+- **Header-Only** - Easy integration, no linking required (with optional compiled components)
+- **ida-cmake Integration** - Seamless integration with IDA plugin build workflow
+- **Type-Safe Utilities** - RAII wrappers and smart abstractions over IDA SDK
+
+## Modules
+
+### Core (`idacpp::core`)
+Low-level utilities and container types:
+- `objcontainer_t` - RAII object container with automatic lifetime management
+
+### Kernwin (`idacpp::kernwin`)
+UI and action management utilities:
+- `action_manager_t` - Simplified IDA action creation and management
+- `fo_action_handler_ah_t` - Function object-based action handlers
+- `IDAICONS` - Named constants for IDA's built-in icons
+- Action helper macros for lambda-based handlers
+
+### Hexrays (`idacpp::hexrays`)
+Decompiler utilities:
+- `hexrays_ctreeparent_visitor_t` - Enhanced ctree visitor with parent tracking
+- Selection and range utilities for decompiler views
+- Default action state handlers for Hexrays widgets
+
+### Expr (`idacpp::expr`)
+Expression evaluation utilities
+
+### Callbacks (`idacpp::callbacks`)
+Callback management utilities
+
+## Requirements
+
+- **IDA SDK** with ida-cmake
+- **C++20 compiler** (MSVC 2019+, GCC 10+, Clang 10+)
+- **CMake 3.27+**
+
+## Quick Start
+
+### 1. Clone into your plugin project
+
+```bash
+cd your_plugin_project
+git submodule add https://github.com/0xeb/idax.git external/idacpp
 ```
 
-Now, to use `idax`, simply do:
-
-```c++
-#include <idax/xkernwin.hpp>
-```
-
-Note that `idax` requires the C++17 standard. If you are using CMake/[`ida-cmake`](https://github.com/0xeb/ida-cmake), you can set the C++ standard like this:
+### 2. Add to your CMakeLists.txt
 
 ```cmake
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+add_subdirectory(external/idacpp)
+
+ida_add_plugin(your_plugin
+    SOURCES your_plugin.cpp
+)
+
+target_link_libraries(your_plugin PRIVATE idacpp::idacpp)
 ```
 
+### 3. Use in your code
 
-## Symbolic links
+```cpp
+#include <idacpp/idacpp.hpp>  // All modules
+// or
+#include <idacpp/kernwin/kernwin.hpp>  // Specific module
 
-In the case of multiple IDA SDKs on the system, it is best to clone this project into its own folder then create symbolic links.
+using namespace idacpp::kernwin;
 
-For instance, on MS Windows:
-
-```batch
-D:\Projects\ida\idasdk76\include>mklink /j %cd%\idax D:\Projects\opensource\idax
+// Use action manager
+action_manager_t actions;
+actions.create_action(
+    "my_action",
+    "My Action",
+    [](action_update_ctx_t* ctx, bool is_widget) {
+        return AST_ENABLE_ALWAYS;
+    },
+    [](action_activation_ctx_t* ctx) {
+        msg("Hello from idacpp!\n");
+        return 1;
+    }
+);
 ```
 
-# Extensions summary
+## Usage Examples
 
-## xpro.hpp
+### Action Management
 
-- Low level / support helpers
+```cpp
+#include <idacpp/kernwin/kernwin.hpp>
 
-## xkernwin.hpp
+using namespace idacpp::kernwin;
 
-- Action manager: simplifies action creation and management
+action_manager_t mgr;
 
+// Create action with lambda handlers
+mgr.create_action(
+    "analyze_function",
+    "Analyze Function",
+    FO_ACTION_UPDATE([], {
+        return get_screen_ea() != BADADDR ? AST_ENABLE : AST_DISABLE;
+    }),
+    FO_ACTION_ACTIVATE([](action_activation_ctx_t* ctx) {
+        ea_t ea = get_screen_ea();
+        msg("Analyzing function at %a\n", ea);
+        return 1;
+    })
+);
 
-## xhexrays.hpp
+// Attach to menu/popup
+mgr.attach_action("analyze_function", "Edit/Plugins/");
+```
 
-- Various helpers for Hexrays. [ida-strikeout](../ida-strikeout) makes use of this header a lot
+### Hexrays Visitor with Parent Tracking
+
+```cpp
+#include <idacpp/hexrays/hexrays.hpp>
+
+using namespace idacpp::hexrays;
+
+hexrays_ctreeparent_visitor_t visitor;
+visitor.apply_to(*cfunc, nullptr);
+
+// Find parent of an expression
+const citem_t* parent = visitor.parent_of(expr);
+
+// Check ancestry
+if (visitor.is_ancestor_of(parent, child)) {
+    // ...
+}
+```
+
+### Object Container
+
+```cpp
+#include <idacpp/core/core.hpp>
+
+using namespace idacpp::core;
+
+objcontainer_t<my_object_t> objects;
+
+// Create object (automatically managed)
+auto* obj = objects.create(constructor_args...);
+
+// Access by index
+auto* first = objects[0];
+auto* last = objects[-1];
+
+// Automatic cleanup when container goes out of scope
+```
+
+## Migration from idax
+
+| idax | idacpp |
+|------|--------|
+| `#include <idax/xkernwin.hpp>` | `#include <idacpp/kernwin/kernwin.hpp>` |
+| `action_manager_t mgr;` | `idacpp::kernwin::action_manager_t mgr;` |
+| `IDAICONS::GREEN_DOT` | `idacpp::kernwin::IDAICONS::GREEN_DOT` |
+| Global namespace | `idacpp::module` namespaces |
+
+## Building Examples
+
+```bash
+cmake -B build
+cmake --build build
+```
+
+Examples are built as IDA plugins demonstrating each module's functionality.
+
+## Project Structure
+
+```
+idacpp/
+├── include/idacpp/        # Public headers
+│   ├── core/              # Core utilities
+│   ├── kernwin/           # UI and actions
+│   ├── hexrays/           # Decompiler utilities
+│   ├── expr/              # Expression utilities
+│   ├── callbacks/         # Callback utilities
+│   └── idacpp.hpp         # Master include
+├── examples/              # Example IDA plugins
+├── CMakeLists.txt
+├── CLAUDE.md             # Architecture documentation
+└── README.md
+```
+
+## License
+
+MIT License - see [LICENSE](LICENSE) file for details.
+
+## Author
+
+Elias Bachaalany - [@0xeb](https://github.com/0xeb)
+
+## Contributing
+
+Contributions welcome! This project follows modern C++ best practices and maintains consistency with the IDA SDK's patterns.
