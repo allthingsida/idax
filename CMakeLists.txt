@@ -26,7 +26,7 @@ if(TARGET idasdk::idasdk)
 endif()
 
 # Build examples
-option(IDACPP_BUILD_EXAMPLES "Build idacpp examples" ON)
+option(IDACPP_BUILD_EXAMPLES "Build idacpp examples" OFF)
 
 if(IDACPP_BUILD_EXAMPLES)
     add_subdirectory(examples)
