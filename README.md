@@ -21,13 +21,13 @@ Low-level utilities and container types:
 ### Kernwin (`idacpp::kernwin`)
 UI and action management utilities:
 - `action_manager_t` - Simplified IDA action creation and management
-- `fo_action_handler_ah_t` - Function object-based action handlers
+- `function_action_handler_t` - Function object-based action handlers
 - `IDAICONS` - Named constants for IDA's built-in icons
 - Action helper macros for lambda-based handlers
 
 ### Hexrays (`idacpp::hexrays`)
 Decompiler utilities:
-- `hexrays_ctreeparent_visitor_t` - Enhanced ctree visitor with parent tracking
+- `ctreeparent_visitor_t` - Enhanced ctree visitor with parent tracking
 - Selection and range utilities for decompiler views
 - Default action state handlers for Hexrays widgets
 
@@ -75,16 +75,18 @@ using namespace idacpp::kernwin;
 
 // Use action manager
 action_manager_t actions;
-actions.create_action(
+actions.add_action(
+    AMAHF_NONE,
     "my_action",
     "My Action",
-    [](action_update_ctx_t* ctx, bool is_widget) {
+    nullptr,
+    FO_ACTION_UPDATE([], {
         return AST_ENABLE_ALWAYS;
-    },
-    [](action_activation_ctx_t* ctx) {
+    }),
+    FO_ACTION_ACTIVATE([](action_activation_ctx_t* ctx) {
         msg("Hello from idacpp!\n");
         return 1;
-    }
+    })
 );
 ```
 
@@ -100,9 +102,11 @@ using namespace idacpp::kernwin;
 action_manager_t mgr;
 
 // Create action with lambda handlers
-mgr.create_action(
+mgr.add_action(
+    AMAHF_NONE,
     "analyze_function",
     "Analyze Function",
+    nullptr,
     FO_ACTION_UPDATE([], {
         return get_screen_ea() != BADADDR ? AST_ENABLE : AST_DISABLE;
     }),
@@ -112,9 +116,6 @@ mgr.create_action(
         return 1;
     })
 );
-
-// Attach to menu/popup
-mgr.attach_action("analyze_function", "Edit/Plugins/");
 ```
 
 ### Hexrays Visitor with Parent Tracking
@@ -124,7 +125,7 @@ mgr.attach_action("analyze_function", "Edit/Plugins/");
 
 using namespace idacpp::hexrays;
 
-hexrays_ctreeparent_visitor_t visitor;
+ctreeparent_visitor_t visitor;
 visitor.apply_to(*cfunc, nullptr);
 
 // Find parent of an expression

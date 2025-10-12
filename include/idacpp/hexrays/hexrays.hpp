@@ -24,7 +24,7 @@ namespace idacpp::hexrays
  *
  * Enables action only when a decompiler widget is active and an expression is selected.
  */
-inline kernwin::update_state_ah_t hexrays_default_enable_for_vd_expr = FO_ACTION_UPDATE([],
+inline kernwin::update_state_ah_t default_enable_for_vd_expr = FO_ACTION_UPDATE([],
     auto vu = get_widget_vdui(widget);
     return (vu == nullptr) ? AST_DISABLE_FOR_WIDGET
                             : vu->item.citype == VDI_EXPR ? AST_ENABLE : AST_DISABLE;
@@ -35,7 +35,7 @@ inline kernwin::update_state_ah_t hexrays_default_enable_for_vd_expr = FO_ACTION
  *
  * Enables action whenever a decompiler widget is active.
  */
-inline kernwin::update_state_ah_t hexrays_default_enable_for_vd = FO_ACTION_UPDATE([],
+inline kernwin::update_state_ah_t default_enable_for_vd = FO_ACTION_UPDATE([],
     auto vu = get_widget_vdui(widget);
     return vu == nullptr ? AST_DISABLE_FOR_WIDGET : AST_ENABLE;
 );
@@ -47,7 +47,7 @@ inline kernwin::update_state_ah_t hexrays_default_enable_for_vd = FO_ACTION_UPDA
  * Extends ctree_parentee_t to build and maintain maps of parent relationships
  * and effective address to item mappings during tree traversal.
  */
-class hexrays_ctreeparent_visitor_t : public ctree_parentee_t
+class ctreeparent_visitor_t : public ctree_parentee_t
 {
 private:
     std::map<const citem_t*, const citem_t*> parent;   ///< Parent map
@@ -114,8 +114,8 @@ public:
     }
 };
 
-/// Unique pointer to hexrays parent visitor
-using hexrays_ctreeparent_visitor_ptr_t = std::unique_ptr<hexrays_ctreeparent_visitor_t>;
+/// Unique pointer to ctree parent visitor
+using ctreeparent_visitor_ptr_t = std::unique_ptr<ctreeparent_visitor_t>;
 
 //----------------------------------------------------------------------------------
 /**
@@ -165,24 +165,24 @@ inline ea_t get_selection_range(
  * @param ohelper Optional in/out parameter for parent visitor (for reuse)
  * @return Statement instruction, or nullptr if not found
  */
-inline const cinsn_t* hexrays_get_stmt_insn(
+inline const cinsn_t* get_stmt_insn(
     cfunc_t* cfunc,
     const citem_t* ui_item,
-    hexrays_ctreeparent_visitor_ptr_t* ohelper = nullptr)
+    ctreeparent_visitor_ptr_t* ohelper = nullptr)
 {
     auto func_body = &cfunc->body;
 
     const citem_t* item = ui_item;
     const citem_t* stmt_item;
 
-    hexrays_ctreeparent_visitor_t* helper = nullptr;
+    ctreeparent_visitor_t* helper = nullptr;
 
     if (ohelper != nullptr)
     {
         // Start a new helper
         if (*ohelper == nullptr)
         {
-            helper = new hexrays_ctreeparent_visitor_t();
+            helper = new ctreeparent_visitor_t();
             helper->apply_to(func_body, nullptr);
 
             ohelper->reset(helper);
@@ -225,12 +225,12 @@ inline const cinsn_t* hexrays_get_stmt_insn(
  * @param helper Optional parent visitor
  * @return true if found, false otherwise
  */
-inline bool hexrays_get_stmt_block_pos(
+inline bool get_stmt_block_pos(
     cfunc_t* cfunc,
     const citem_t* stmt_item,
     cblock_t** p_cblock,
     cblock_t::iterator* p_pos,
-    hexrays_ctreeparent_visitor_t* helper = nullptr)
+    ctreeparent_visitor_t* helper = nullptr)
 {
     auto func_body = &cfunc->body;
     auto cblock_insn = (cinsn_t*)(
@@ -263,8 +263,8 @@ inline bool hexrays_get_stmt_block_pos(
  * @param item Item to check
  * @return true if any instruction is ancestor of item
  */
-inline bool hexrays_are_acenstor_of(
-    hexrays_ctreeparent_visitor_t* h,
+inline bool are_ancestor_of(
+    ctreeparent_visitor_t* h,
     cinsnptrvec_t& inst,
     citem_t* item)
 {
@@ -287,9 +287,9 @@ inline bool hexrays_are_acenstor_of(
  * @param helper Parent visitor
  * @param bulk_list Instruction list (modified in place)
  */
-inline void hexrays_keep_lca_cinsns(
+inline void keep_lca_cinsns(
     cfunc_t* cfunc,
-    hexrays_ctreeparent_visitor_t* helper,
+    ctreeparent_visitor_t* helper,
     cinsnptrvec_t& bulk_list)
 {
     cinsnptrvec_t new_list;
@@ -298,8 +298,8 @@ inline void hexrays_keep_lca_cinsns(
         auto item = bulk_list.back();
         bulk_list.pop_back();
 
-        if (!hexrays_are_acenstor_of(helper, bulk_list, item) &&
-            !hexrays_are_acenstor_of(helper, new_list, item))
+        if (!are_ancestor_of(helper, bulk_list, item) &&
+            !are_ancestor_of(helper, new_list, item))
             new_list.push_back(item);
     }
     new_list.swap(bulk_list);
@@ -314,7 +314,7 @@ inline void hexrays_keep_lca_cinsns(
  * @param flags Visitor flags (default: CV_FAST)
  * @param parent Starting parent item (nullptr for entire function)
  */
-inline void hexrays_find_expr(
+inline void find_expr(
     cfuncptr_t func,
     std::function<int(cexpr_t*)> cb,
     int flags = CV_FAST,

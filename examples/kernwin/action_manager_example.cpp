@@ -34,10 +34,11 @@ struct plugin_ctx_t : public plugmod_t
                 return AST_ENABLE_ALWAYS;
             }),
             // Activate handler
-            FO_ACTION_ACTIVATE([](action_activation_ctx_t* ctx) {
+            FO_ACTION_ACTIVATE([])
+            {
                 msg("Hello from idacpp action!\n");
                 return 1;
-            }),
+            },
             "Print a hello message",
             IDAICONS::LIGHT_BULB
         );
@@ -51,14 +52,15 @@ struct plugin_ctx_t : public plugmod_t
             // Update handler - enable only in disassembly
             actions.default_enable_for_disasm,
             // Activate handler - show current address
-            FO_ACTION_ACTIVATE([](action_activation_ctx_t* ctx) {
+            FO_ACTION_ACTIVATE([])
+            {
                 ea_t ea = get_screen_ea();
                 if (ea != BADADDR)
                     msg("Current EA: %a\n", ea);
                 else
                     msg("No current EA\n");
                 return 1;
-            }),
+            },
             "Display current effective address",
             IDAICONS::EYE_GREEN
         );
@@ -72,7 +74,8 @@ struct plugin_ctx_t : public plugmod_t
             // Enable in both disasm and decompiler
             actions.default_enable_for_vd_disasm,
             // Show widget information
-            FO_ACTION_ACTIVATE([](action_activation_ctx_t* ctx) {
+            FO_ACTION_ACTIVATE([])
+            {
                 TWidget* widget = ctx->widget;
                 if (widget)
                 {
@@ -82,7 +85,7 @@ struct plugin_ctx_t : public plugmod_t
                     msg("Widget: '%s' (type=%d)\n", title.c_str(), type);
                 }
                 return 1;
-            }),
+            },
             "Show information about current widget",
             IDAICONS::NOTEPAD_1
         );

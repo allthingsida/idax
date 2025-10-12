@@ -26,11 +26,11 @@ static void demonstrate_visitor(vdui_t* vu)
         return;
     }
 
-    msg("=== hexrays_ctreeparent_visitor_t Example ===\n");
+    msg("=== ctreeparent_visitor_t Example ===\n");
     msg("Function: %a\n\n", vu->cfunc->entry_ea);
 
     // Create visitor and build parent maps
-    hexrays_ctreeparent_visitor_t visitor;
+    ctreeparent_visitor_t visitor;
     visitor.apply_to(&vu->cfunc->body, nullptr);
 
     // If user has selected an item, show its ancestry
@@ -80,11 +80,11 @@ static void demonstrate_find_expr(vdui_t* vu)
         return;
     }
 
-    msg("=== hexrays_find_expr Example ===\n");
+    msg("=== find_expr Example ===\n");
     msg("Finding all number expressions in function %a:\n\n", vu->cfunc->entry_ea);
 
     int count = 0;
-    hexrays_find_expr(
+    find_expr(
         vu->cfunc,
         [&count](cexpr_t* expr) -> int {
             if (expr->op == cot_num)
@@ -116,13 +116,14 @@ struct plugin_ctx_t : public plugmod_t
             "idacpp:demo_visitor",
             "Show Item Parents",
             nullptr,
-            hexrays_default_enable_for_vd,
-            FO_ACTION_ACTIVATE([](action_activation_ctx_t* ctx) {
+            default_enable_for_vd,
+            FO_ACTION_ACTIVATE([])
+            {
                 auto vu = get_widget_vdui(ctx->widget);
                 if (vu)
                     demonstrate_visitor(vu);
                 return 1;
-            }),
+            },
             "Demonstrate parent visitor",
             IDAICONS::EYE_GREEN
         );
@@ -133,13 +134,14 @@ struct plugin_ctx_t : public plugmod_t
             "idacpp:demo_find_expr",
             "Find Numbers",
             nullptr,
-            hexrays_default_enable_for_vd,
-            FO_ACTION_ACTIVATE([](action_activation_ctx_t* ctx) {
+            default_enable_for_vd,
+            FO_ACTION_ACTIVATE([])
+            {
                 auto vu = get_widget_vdui(ctx->widget);
                 if (vu)
                     demonstrate_find_expr(vu);
                 return 1;
-            }),
+            },
             "Find all number expressions",
             IDAICONS::FLASH
         );

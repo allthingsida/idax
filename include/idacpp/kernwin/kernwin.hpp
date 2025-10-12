@@ -61,14 +61,14 @@ using activate_ah_t = std::function<int(action_activation_ctx_t* ctx)>;
  * Utility class that allows using function objects instead of inheriting from
  * action_handler_t each time.
  */
-struct fo_action_handler_ah_t : public action_handler_t
+struct function_action_handler_t : public action_handler_t
 {
     qstring name;                    ///< Action name
     const char* popup_path;          ///< Popup menu path for attachment
     update_state_ah_t f_update;      ///< Update/state callback
     activate_ah_t f_activate;        ///< Activation callback
 
-    fo_action_handler_ah_t(
+    function_action_handler_t(
         const char* name,
         update_state_ah_t f_update,
         activate_ah_t f_activate,
@@ -94,7 +94,7 @@ struct fo_action_handler_ah_t : public action_handler_t
 };
 
 /// Vector of action handler pointers
-using fo_action_handler_vec_t = std::vector<fo_action_handler_ah_t*>;
+using function_action_handler_vec_t = std::vector<function_action_handler_t*>;
 
 //----------------------------------------------------------------------------------
 /**
@@ -147,11 +147,11 @@ class action_manager_t
     #define AMAHF_HXE_POPUP 0x01  ///< Attach to Hexrays popup
     #define AMAHF_IDA_POPUP 0x04  ///< Attach to IDA popup
 
-    core::objcontainer_t<fo_action_handler_ah_t> action_handlers;  ///< Owned action handlers
-    core::objcontainer_t<qstring> popup_paths;                     ///< Owned popup path strings
+    core::objcontainer_t<function_action_handler_t> action_handlers;  ///< Owned action handlers
+    core::objcontainer_t<qstring> popup_paths;                        ///< Owned popup path strings
 
-    fo_action_handler_vec_t want_hxe_popup;  ///< Actions for Hexrays popup
-    fo_action_handler_vec_t want_ida_popup;  ///< Actions for IDA popup
+    function_action_handler_vec_t want_hxe_popup;  ///< Actions for Hexrays popup
+    function_action_handler_vec_t want_ida_popup;  ///< Actions for IDA popup
     const void* plg_owner;                   ///< Plugin owner
     const char* current_popup_path = nullptr;///< Current popup path for new actions
 
@@ -213,7 +213,7 @@ public:
      * @return true if attached successfully
      */
     bool attach_to_popup(
-        fo_action_handler_ah_t* act,
+        function_action_handler_t* act,
         TWidget* widget,
         TPopupMenu* popup_handle,
         const char* popuppath = nullptr,
@@ -281,7 +281,7 @@ public:
      * @param icon Icon ID (use IDAICONS or -1 for none)
      * @return Pointer to created action handler, or nullptr on failure
      */
-    fo_action_handler_ah_t* add_action(
+    function_action_handler_t* add_action(
         int amflags,  // one of AMAHF_* flags
         const char* name,
         const char* label,
@@ -300,7 +300,7 @@ public:
             tooltip,
             icon));
 
-        fo_action_handler_ah_t* act = nullptr;
+        function_action_handler_t* act = nullptr;
 
         if (ok)
         {
